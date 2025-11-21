@@ -1,2 +1,3 @@
 [] Add color coding like blue text for typing and then red for error messages
 [] Create a spin off shell app that can open in its own window
+[] Allow for the typing of "," within integers. Such as 1,000,345.
