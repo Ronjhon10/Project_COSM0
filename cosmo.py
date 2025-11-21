@@ -142,6 +142,42 @@ class NumberNode:
 
     def __repr__(self):
         return f"{self.tokens}"
+class BinOpNode:
+    def __init__(self, left, op_token, right):
+        self.left = left
+        self.right = right
+        self.op_token = op_token
+
+    def __repr__(self):
+        return f"({self.left} {self.op_token} {self.right})"
+
+# <><><><><><><><><><><><><><><><><><><><><>
+# PARSER
+#<><><><><><><><><><><><><><><><><><><><><>
+
+class Parser:
+    def __init__(self, tokens):
+        self.tokens = tokens
+        self.tok_idx = 1
+        self.advance()
+
+    def advance(self):
+        self.tok_idx += 1
+        if self.tok_idx < len(self.tokens):
+            self.current_tok = self.tokens[self.tok_idx]
+        return self.current_tok
+
+    def factor(self):
+        token = self.current_tok
+
+        if token.type in (TT_INT, TT_FLOAT):
+            self.advance()
+            return NumberNode(token)
+        pass
+    def term(self):
+        pass
+    def expr(self):
+        pass
 
 
 # <><><><><><><><><><><><><><><><><><><><><>
