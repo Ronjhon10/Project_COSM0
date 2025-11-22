@@ -187,8 +187,11 @@ class Parser:
 def run(fn, text):
     lexer = Lexer(fn, text)
     tokens, error = lexer.make_tokens()
-
-    return tokens, error
+    if error:
+        return None, error
+    parser = Parser(tokens)
+    ast = parser.parse()
+    return ast, None
 
 # <><><><><><><><><><><><><><><><><><><><><>
 # COLORS
