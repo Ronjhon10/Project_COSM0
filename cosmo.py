@@ -121,8 +121,7 @@ class Lexer:
     def make_number(self):
         num_str = ''
         dot_count = 0
-
-        while self.current_char != None and self.current_char in DIGITS + '.':
+        while self.current_char is not None and (self.current_char in DIGITS or self.current_char == '.'):
             if self.current_char == '.':
                 if dot_count == 1: break
                 dot_count += 1
