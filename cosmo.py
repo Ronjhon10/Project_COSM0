@@ -23,6 +23,7 @@ class Error:
         result += f'\nFile {self.position_start.fn}, line {self.position_start.ln + 1}'
         result += '\n\n'+string_with_arrows(self.position_start.ftxt, self.position_start, self.position_end)
         return result
+
 class IllegalCharError(Error):
     def __init__(self, position_start, position_end, details):
             super().__init__(position_start, position_end, 'Illegal character', details)
