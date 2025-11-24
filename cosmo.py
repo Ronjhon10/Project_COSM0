@@ -94,9 +94,8 @@ class Lexer:
 
     def make_tokens(self):
         tokens = []
-
-        while self.current_char != None:
-            if self.current_char in ' /t':
+        while self.current_char is not None:
+            if self.current_char in ' \t\n':
                 self.advance()
             elif self.current_char in DIGITS:
                 tokens.append(self.make_number())
