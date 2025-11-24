@@ -170,12 +170,26 @@ class Parser:
         return self.expr()
 
     def factor(self):
-        token = self.current_tok
-
-        if token.type in (TT_INT, TT_FLOAT):
+        tok = self.current_tok
+        if tok is None:
+            return None
+        if tok.type_ in (TT_INT, TT_FLOAT):
             self.advance()
-            return NumberNode(token)
-        pass
+            return NumberNode(tok)
+        if tok.type_ == TT_LPAREN:
+            self.advance()
+            node = self.expr()
+            if self.current_tok and self.current_tok.type_ == TT_RPAREN:
+                self.advance()
+            return node
+        if tok.type_ in (TT_PLUS, TT_MINUS):
+            # unary +/-
+            op = tok
+            self.advance()
+            node = self.factor()
+            return BinOpNode(NumberNode(Token(TT_INT, 0)), op, node)
+        return None
+
     def term(self):
         pass
     def expr(self):
