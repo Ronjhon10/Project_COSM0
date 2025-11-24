@@ -115,8 +115,7 @@ class Lexer:
                 position_start = self.pos.copy()
                 ch = self.current_char
                 self.advance()
-                return [], IllegalCharError(position_start, self.pos, "'"+char+"'")
-
+                return [], IllegalCharError(position_start, self.pos, "'" + ch + "'")
         return tokens, None
 
     def make_number(self):
