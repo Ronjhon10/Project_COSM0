@@ -26,7 +26,10 @@ class Error:
 
 class IllegalCharError(Error):
     def __init__(self, position_start, position_end, details):
-            super().__init__(position_start, position_end, 'Illegal character', details)
+        super().__init__(position_start, position_end, 'Illegal character', details)
+class InvalidSyntaxError(Error):
+    def __init__(self, position_start, position_end, details=""):
+        super().__init__(position_start, position_end, 'Invalid Syntax', details)
 
 # <><><><><><><><><><><><><><><><><><><><><>
 # POSITION
