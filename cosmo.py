@@ -225,4 +225,4 @@ def run(fn, text):
 class Colors:
     RED = '\033[91m'
     BLUE = '\033[94m'
-    RESET = '\033[0m' # Resets color to default
+    RESET = '\033[0m'
