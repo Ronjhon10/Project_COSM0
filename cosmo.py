@@ -191,7 +191,8 @@ class Parser:
         return None
 
     def term(self):
-        pass
+        return self.bin_op(self.factor, (TT_MUL, TT_DIV))
+
     def expr(self):
         pass
 
