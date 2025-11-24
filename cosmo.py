@@ -125,9 +125,7 @@ class Lexer:
             if self.current_char == '.':
                 if dot_count == 1: break
                 dot_count += 1
-                num_str += '.'
-            else:
-                num_str += self.current_char
+            num_str += self.current_char
             self.advance()
         if num_str == '.' or num_str == '':
             # handle lone dot as illegal char
