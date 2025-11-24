@@ -149,7 +149,7 @@ class BinOpNode:
         self.op_token = op_token
 
     def __repr__(self):
-        return f"({self.left} {self.op_token} {self.right})"
+        return f"({self.left} {self.op_token.type_} {self.right})"
 
 # <><><><><><><><><><><><><><><><><><><><><>
 # PARSER
