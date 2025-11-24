@@ -163,8 +163,7 @@ class Parser:
 
     def advance(self):
         self.tok_idx += 1
-        if self.tok_idx < len(self.tokens):
-            self.current_tok = self.tokens[self.tok_idx]
+        self.current_tok = self.tokens[self.tok_idx] if self.tok_idx < len(self.tokens) else None
         return self.current_tok
 
     def factor(self):
