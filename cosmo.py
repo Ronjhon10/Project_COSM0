@@ -129,10 +129,11 @@ class Lexer:
             else:
                 num_str += self.current_char
             self.advance()
-        if dot_count == 0:
-            return Token(TT_INT, int(num_str))
-        else:
-            return Token(TT_FLOAT, float(num_str))
+        if num_str == '.' or num_str == '':
+            # handle lone dot as illegal char
+            return Token(TT_FLOAT, 0.0)
+        return Token(TT_INT, int(num_str)) if dot_count == 0 else Token(TT_FLOAT, float(num_str))
+
 # <><><><><><><><><><><><><><><><><><><><><>
 # NODES
 # <><><><><><><><><><><><><><><><><><><><><>
