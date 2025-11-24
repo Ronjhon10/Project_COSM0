@@ -166,6 +166,9 @@ class Parser:
         self.current_tok = self.tokens[self.tok_idx] if self.tok_idx < len(self.tokens) else None
         return self.current_tok
 
+    def parse(self):
+        return self.expr()
+
     def factor(self):
         token = self.current_tok
 
