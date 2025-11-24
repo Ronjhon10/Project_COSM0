@@ -194,7 +194,7 @@ class Parser:
         return self.bin_op(self.factor, (TT_MUL, TT_DIV))
 
     def expr(self):
-        pass
+        return self.bin_op(self.term, (TT_PLUS, TT_MINUS))
 
 
 # <><><><><><><><><><><><><><><><><><><><><>
