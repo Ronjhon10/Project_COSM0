@@ -110,8 +110,7 @@ class Lexer:
             elif self.current_char == '(':
                 tokens.append(Token(TT_LPAREN)); self.advance()
             elif self.current_char == ')':
-                tokens.append(Token(TT_RPAREN))
-                self.advance()
+                tokens.append(Token(TT_RPAREN)); self.advance()
             else:
                 position_start = self.pos.copy()
                 char = self.current_char
