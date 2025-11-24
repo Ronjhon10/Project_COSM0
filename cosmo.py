@@ -100,8 +100,7 @@ class Lexer:
             elif self.current_char in DIGITS or self.current_char == '.':
                 tokens.append(self.make_number())
             elif self.current_char == '+':
-                tokens.append(TT_PLUS)
-                self.advance()
+                tokens.append(Token(TT_PLUS)); self.advance()
             elif self.current_char == '-':
                 tokens.append(TT_MINUS)
                 self.advance()
