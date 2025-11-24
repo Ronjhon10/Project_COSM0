@@ -140,7 +140,8 @@ class NumberNode:
     def __init__(self, token):
         self.token = token
     def __repr__(self):
-        return f"{self.tokens}"
+        return f"{self.token}"
+
 class BinOpNode:
     def __init__(self, left, op_token, right):
         self.left = left
