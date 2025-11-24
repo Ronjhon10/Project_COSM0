@@ -72,7 +72,8 @@ class Token:
         self.type_ = type_
         self.value = value
     def __repr__(self):
-        if self.value: return f"<{self.type_}: {self.value}>"
+        if self.value is not None:
+            return f"<{self.type_}: {self.value}>"
         return f"{self.type_}"
 
 # <><><><><><><><><><><><><><><><><><><><><>
