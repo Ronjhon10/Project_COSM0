@@ -57,8 +57,7 @@ class Position:
 # <><><><><><><><><><><><><><><><><><><><><>
 # TOKENS
 # <><><><><><><><><><><><><><><><><><><><><>
-
-TT_INT = 'INT'
+TT_INT   = 'INT'
 TT_FLOAT = 'FLOAT'
 TT_PLUS = 'PLUS'
 TT_MINUS = 'MINUS'
