@@ -113,7 +113,7 @@ class Lexer:
                 tokens.append(Token(TT_RPAREN)); self.advance()
             else:
                 position_start = self.pos.copy()
-                char = self.current_char
+                ch = self.current_char
                 self.advance()
                 return [], IllegalCharError(position_start, self.pos, "'"+char+"'")
 
