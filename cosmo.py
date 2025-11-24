@@ -106,8 +106,7 @@ class Lexer:
             elif self.current_char == '*':
                 tokens.append(Token(TT_MUL)); self.advance()
             elif self.current_char == '/':
-                tokens.append(TT_DIV)
-                self.advance()
+                tokens.append(Token(TT_DIV)); self.advance()
             elif self.current_char == '(':
                 tokens.append(Token(TT_LPAREN))
                 self.advance()
