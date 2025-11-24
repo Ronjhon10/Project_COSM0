@@ -97,7 +97,7 @@ class Lexer:
         while self.current_char is not None:
             if self.current_char in ' \t\n':
                 self.advance()
-            elif self.current_char in DIGITS:
+            elif self.current_char in DIGITS or self.current_char == '.':
                 tokens.append(self.make_number())
             elif self.current_char == '+':
                 tokens.append(TT_PLUS)
