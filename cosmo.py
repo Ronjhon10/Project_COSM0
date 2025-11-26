@@ -83,6 +83,8 @@ TT_DIV   = 'DIV'
 TT_LPAREN= 'LPAREN'
 TT_RPAREN= 'RPAREN'
 TT_EOF = 'EOF'
+TT_POW = 'POW'
+TT_SQRT = 'SQRT'
 
 
 class Token:
@@ -132,6 +134,12 @@ class Lexer:
                 tokens.append(Token(TT_MUL, pos_start = self.pos)); self.advance()
             elif self.current_char == '/':
                 tokens.append(Token(TT_DIV, pos_start = self.pos)); self.advance()
+            elif self.current_char == '^':
+                tokens.append(Token(TT_POW, pos_start=self.pos))
+                self.advance()
+            elif self.current_char == '|':
+                tokens.append(Token(TT_SQRT, pos_start=self.pos))
+                self.advance()
             elif self.current_char == '(':
                 tokens.append(Token(TT_LPAREN, pos_start = self.pos)); self.advance()
             elif self.current_char == ')':
@@ -242,17 +250,11 @@ class Parser:
             return res.fail(InvalidSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end, "Excpected '+', '-', '*', '/'"))
         return res
 
-    def factor(self):
+    def atom(self):
         res = ParseResult()
         tok = self.current_tok
 
-        if tok.type_ in (TT_PLUS, TT_MINUS):
-            res.register(self.advance())
-            factor = res.register(self.factor())
-            if res.error: return res
-            return res.success(UnaryOpNode(tok, factor))
-
-        elif tok.type_ in (TT_INT, TT_FLOAT):
+        if tok.type_ in (TT_INT, TT_FLOAT):
             res.register(self.advance())
             return res.success(NumberNode(tok))
 
@@ -266,7 +268,22 @@ class Parser:
             else:
                 return res.fail(InvalidSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end, "Excpected ')' "))
 
-        return res.fail(InvalidSyntaxError(tok.pos_start, tok.pos_end, "Expected int or float"))
+        return res.fail(InvalidSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end, "Excpected '+', '-', '*', '/'"))
+
+    def power(self):
+        return self.bin_op(self.atom, (TT_POW, ), self.factor)
+
+    def factor(self):
+        res = ParseResult()
+        tok = self.current_tok
+
+        if tok.type_ in (TT_PLUS, TT_MINUS, TT_SQRT):
+            res.register(self.advance())
+            node = res.register(self.factor())
+            if res.error: return res
+            return res.success(UnaryOpNode(tok, node))
+
+        return self.power()
 
     def term(self):
         return self.bin_op(self.factor, (TT_MUL, TT_DIV))
@@ -274,14 +291,16 @@ class Parser:
     def expr(self):
         return self.bin_op(self.term, (TT_PLUS, TT_MINUS))
 
-    def bin_op(self, func, ops):
+    def bin_op(self, func_a, ops, func_b = None):
+        if func_b is None:
+            func_b = func_a
         res = ParseResult()
-        left = res.register(func())
+        left = res.register(func_a())
         if res.error: return res
         while self.current_tok.type_ in ops:
             op_tok = self.current_tok
             res.register(self.advance())
-            right = res.register(func())
+            right = res.register(func_b())
             if res.error: return res
             left = BinOpNode(left, op_tok, right)
         return res.success(left)
@@ -337,6 +356,15 @@ class Number:
             if other.value == 0:
                 return None, RTError(other.pos_start, other.pos_end, "YOU CAN'T FLIPPING DIVIDE BY ZERO", self.context)
             return Number(self.value / other.value).set_context(self.context), None
+    def powered_by(self, other):
+        if isinstance(other, Number):
+            if isinstance(other, Number):
+                return Number(self.value ** other.value).set_context(self.context), None
+    def rooted(self):
+        if self.value < 0:
+            return None, RTError(self.pos_start, self.pos_end, "SORRY! No taking the square root of a negative number!", self.context)
+        return Number(self.value ** .5).set_context(self.context), None
+
     def __repr__(self):
         return str(self.value)
 
@@ -380,6 +408,8 @@ class Interpreter:
             result, error = left.multiply_by(right)
         elif node.op_token.type_ == TT_DIV:
             result, error = left.divided_by(right)
+        elif node.op_token.type_ == TT_POW:
+            result, error = left.powered_by(right)
 
         if error:
             return res.fail(error)
@@ -390,11 +420,13 @@ class Interpreter:
         res = RTResult()
         number = res.register(self.visit(node.node, context))
         if res.error: return res
+
         if node.op_tok.type_ == TT_MINUS:
             number, error = number.multiply_by(Number(-1))
+        elif node.op_tok.type_ == TT_SQRT:
+            number, error = number.rooted()
 
-        if error:
-            return res.fail(error)
+        if error: return res.fail(error)
         else:
             return res.success(number.set_pos(node.pos_start, node.pos_end))
 
