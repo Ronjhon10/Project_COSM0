@@ -169,6 +169,9 @@ class Lexer:
 class NumberNode:
     def __init__(self, token):
         self.token = token
+        self.pos_start = token.pos_start
+        self.pos_end = token.pos_end
+
     def __repr__(self):
         return f"{self.token}"
 
@@ -177,12 +180,21 @@ class BinOpNode:
         self.left = left
         self.right = right
         self.op_token = op_token
+
+        self.pos_start = self.left.pos_start
+        self.pos_end = self.right.pos_end
+
     def __repr__(self):
         return f"({self.left} {self.op_token.type_} {self.right})"
+
 class UnaryOpNode:
     def __init__(self, op_tok, node):
         self.op_tok = op_tok
         self.node = node
+
+        self.pos_start = self.op_tok.pos_start
+        self.pos_end = self.node.pos_end
+
     def __repr__(self):
         return f"({self.op_tok} {self.node})"
 
@@ -255,20 +267,6 @@ class Parser:
                 return res.fail(InvalidSyntaxError(self.current_tok.pos_start, self.current_tok.pos_end, "Excpected ')' "))
 
         return res.fail(InvalidSyntaxError(tok.pos_start, tok.pos_end, "Expected int or float"))
-
-        # if tok.type_ == TT_LPAREN:
-        #     self.advance()
-        #     node = self.expr()
-        #     if self.current_tok and self.current_tok.type_ == TT_RPAREN:
-        #         self.advance()
-        #     return node
-        # if tok.type_ in (TT_PLUS, TT_MINUS):
-        #     # unary +/-
-        #     op = tok
-        #     self.advance()
-        #     node = self.factor()
-        #     return BinOpNode(NumberNode(Token(TT_INT, 0)), op, node)
-        # return None
 
     def term(self):
         return self.bin_op(self.factor, (TT_MUL, TT_DIV))
@@ -404,10 +402,13 @@ class Interpreter:
 # RUN
 # <><><><><><><><><><><><><><><><><><><><><>
 def run(fn, text):
+    #Generates the tokens
     lexer = Lexer(fn, text)
     tokens, error = lexer.make_tokens()
     if error:
         return None, error
+
+    # Generates the syntax tree
     parser = Parser(tokens)
     ast = parser.parse()
     if ast.error: return None, ast.error
