@@ -268,6 +268,118 @@ class Parser:
         return res.success(left)
 
 # <><><><><><><><><><><><><><><><><><><><><>
+# Runtime Result
+# <><><><><><><><><><><><><><><><><><><><><>
+class RTResult:
+    def __init__(self):
+        self.value = None
+        self.error = None
+
+    def register(self, res):
+        if res.error: self.error = res.error
+        return res.value
+    def success(self, value):
+        self.value = value
+        return self
+    def fail(self, error):
+        self.error = error
+        return self
+
+# <><><><><><><><><><><><><><><><><><><><><>
+# Values
+# <><><><><><><><><><><><><><><><><><><><><>
+
+class Number:
+    def __init__(self, value):
+        self.value = value
+        self.set_pos()
+        self.set_context()
+
+    def set_pos(self, pos_start = None, pos_end = None):
+        self.pos_start = pos_start
+        self.pos_end = pos_end
+        return self
+
+    def set_context(self, context = None):
+        self.context = context
+        return self
+
+    def added_to(self, other):
+        if isinstance(other, Number):
+            return Number(self.value + other.value).set_context(self.context), None
+    def subtracted_from(self, other):
+        if isinstance(other, Number):
+            return Number(self.value - other.value).set_context(self.context), None
+    def multiply_by(self, other):
+        if isinstance(other, Number):
+            return Number(self.value * other.value).set_context(self.context), None
+    def divided_by(self, other):
+        if isinstance(other, Number):
+            if other.value == 0:
+                return None, RTError(other.pos_start, other.pos_end, "YOU CAN'T FLIPPING DIVIDE BY ZERO", self.context)
+            return Number(self.value / other.value).set_context(self.context), None
+    def __repr__(self):
+        return str(self.value)
+
+# <><><><><><><><><><><><><><><><><><><><><>
+# Context
+# <><><><><><><><><><><><><><><><><><><><><>
+class Context:
+    def __init__(self, display_name, parent=None, parent_entry_pos = None):
+        self.display_name = display_name
+        self.parent = parent
+        self.parent_entry_pos = parent_entry_pos
+
+# <><><><><><><><><><><><><><><><><><><><><>
+# Interpreter
+# <><><><><><><><><><><><><><><><><><><><><>
+
+class Interpreter:
+    def visit(self, node, context):
+        method_name = f'visit_{type(node).__name__}'
+        method = getattr(self, method_name, self.no_visit_method)
+        return method(node, context)
+
+    def no_visit_method(self,node, context):
+        raise Exception(f"No visit_{type(node).__name__} method defined")
+
+
+    def visit_NumberNode(self, node, context):
+        return RTResult().success(Number(node.token.value).set_context(context).set_pos(node.pos_start, node.pos_end))
+
+    def visit_BinOpNode(self, node, context):
+        res = RTResult()
+        left = res.register(self.visit(node.left, context))
+        if res.error: return res
+        right = res.register(self.visit(node.right, context))
+
+        if node.op_token.type_ == TT_PLUS:
+            result, error = left.added_to(right)
+        elif node.op_token.type_ == TT_MINUS:
+            result, error = left.subtracted_from(right)
+        elif node.op_token.type_ == TT_MUL:
+            result, error = left.multiply_by(right)
+        elif node.op_token.type_ == TT_DIV:
+            result, error = left.divided_by(right)
+
+        if error:
+            return res.fail(error)
+        else:
+            return res.success(result.set_pos(node.pos_start, node.pos_end))
+
+    def visit_UnaryOpNode(self, node, context):
+        res = RTResult()
+        number = res.register(self.visit(node.node, context))
+        if res.error: return res
+        if node.op_tok.type_ == TT_MINUS:
+            number, error = number.multiply_by(Number(-1))
+
+        if error:
+            return res.fail(error)
+        else:
+            return res.success(number.set_pos(node.pos_start, node.pos_end))
+
+# <><><><><><><><><><><><><><><><><><><><><>
 # RUN
 # <><><><><><><><><><><><><><><><><><><><><>
 def run(fn, text):
