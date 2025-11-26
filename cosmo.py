@@ -410,7 +410,14 @@ def run(fn, text):
         return None, error
     parser = Parser(tokens)
     ast = parser.parse()
-    return ast.node, ast.error
+    if ast.error: return None, ast.error
+
+    #Run program
+    interpreter = Interpreter()
+    context = Context('<program>')
+    result = interpreter.visit(ast.node, context)
+
+    return result.value, result.error
 
 # <><><><><><><><><><><><><><><><><><><><><>
 # COLORS
